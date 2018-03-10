@@ -18,6 +18,17 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="IP.h" />
+    <ClInclude Include="Subnet.h" />
+    <ClInclude Include="SubnetMask.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="IP.cpp" />
+    <ClCompile Include="Source.cpp" />
+    <ClCompile Include="Subnet.cpp" />
+    <ClCompile Include="SubnetMask.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{3EAC2ACA-53D7-4025-B479-70AB6AD1BF5C}</ProjectGuid>
@@ -114,16 +125,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\Subnet Calculator\Subnet Calculator\IP.h" />
-    <ClInclude Include="..\..\..\Subnet Calculator\Subnet Calculator\Subnet.h" />
-    <ClInclude Include="..\..\..\Subnet Calculator\Subnet Calculator\SubnetMask.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\..\Subnet Calculator\Subnet Calculator\IP.cpp" />
-    <ClCompile Include="..\..\..\Subnet Calculator\Subnet Calculator\Subnet.cpp" />
-    <ClCompile Include="..\..\..\Subnet Calculator\Subnet Calculator\SubnetMask.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

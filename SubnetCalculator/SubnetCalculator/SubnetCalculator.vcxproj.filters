@@ -15,24 +15,27 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\Subnet Calculator\Subnet Calculator\IP.h">
+    <ClInclude Include="IP.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Subnet Calculator\Subnet Calculator\Subnet.h">
+    <ClInclude Include="Subnet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Subnet Calculator\Subnet Calculator\SubnetMask.h">
+    <ClInclude Include="SubnetMask.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\Subnet Calculator\Subnet Calculator\IP.cpp">
+    <ClCompile Include="IP.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Subnet Calculator\Subnet Calculator\Subnet.cpp">
+    <ClCompile Include="Source.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Subnet Calculator\Subnet Calculator\SubnetMask.cpp">
+    <ClCompile Include="Subnet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SubnetMask.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
