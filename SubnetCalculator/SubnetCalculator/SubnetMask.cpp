@@ -12,7 +12,7 @@ namespace subcalc {
 	int SubnetMask::count() const {
 		int tmp = 0;
 		for (int i = 0; i < 3; i++)
-			tmp += address[i].count();
+			tmp += (int)address[i].count();
 
 		return tmp;
 	}
