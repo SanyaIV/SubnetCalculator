@@ -4,6 +4,9 @@
 
 using namespace subcalc;
 
+/**
+ * Only used for testing the Subnet class. 
+*/
 int main() {
 	try {
 		Subnet a("192.168.0.67", "255.255.255.0");

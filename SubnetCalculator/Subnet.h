@@ -7,6 +7,7 @@
 
 namespace subcalc {
 
+	//TODO: Rewrite as functional programming instead of class based.
 	class Subnet
 	{
 	public:
