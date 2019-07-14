@@ -18,7 +18,7 @@ namespace subcalc {
 		if(mask < 1 || mask > 31)
 			throw std::invalid_argument("Malformed Subnet Mask");
 		
-		for (int i = 0; i < 3; i++){
+		for (int i = 0; i <= 3; i++){
 			if(mask >= 8){
 				this->mask[i].set();
 				mask -= 8;
@@ -75,16 +75,22 @@ namespace subcalc {
 	}
 
 	std::string Subnet::GetIP() const {
-		return ip[0].to_string() + "." + ip[1].to_string() + "." + ip[2].to_string() + "." + ip[3].to_string();
+		return std::to_string(ip[0].to_ulong()) + "." 
+		+ std::to_string(ip[1].to_ulong()) + "." 
+		+ std::to_string(ip[2].to_ulong()) + "." 
+		+ std::to_string(ip[3].to_ulong());
 	}
 
 	std::string Subnet::GetMask() const {
-		return mask[0].to_string() + "." + mask[1].to_string() + "." + mask[2].to_string() + "." + mask[3].to_string();
+		return std::to_string(mask[0].to_ulong()) + "." 
+		+ std::to_string(mask[1].to_ulong()) + "." 
+		+ std::to_string(mask[2].to_ulong()) + "." 
+		+ std::to_string(mask[3].to_ulong());
 	}
 
 	size_t Subnet::GetMaskCount() const {
 		size_t tmp = 0;
-		for (int i = 0; i < 3; i++)
+		for (int i = 0; i <= 3; i++)
 			tmp += mask[i].count();
 
 		return tmp;
@@ -93,10 +99,30 @@ namespace subcalc {
 	std::string Subnet::GetSubnet() const {
 		std::bitset<8> subnet[4];
 		
-		for (int i = 0; i < 3; i++)
+		for (int i = 0; i <= 3; i++)
 			subnet[i] = ip[i] & mask[i];
 
-		return subnet[0].to_string() + "." + subnet[1].to_string() + "." + subnet[2].to_string() + "." + subnet[3].to_string() + "/" + std::to_string((int)GetMaskCount());
+		return std::to_string(subnet[0].to_ulong()) + "." 
+		+ std::to_string(subnet[1].to_ulong()) + "." 
+		+ std::to_string(subnet[2].to_ulong()) + "." 
+		+ std::to_string(subnet[3].to_ulong()) + "/" 
+		+ std::to_string((int)GetMaskCount());
+	}
+
+	void Subnet::GetBitsetIP(OUT std::bitset<8>(&bitset)[4]){
+		for(int i = 0; i <= 3; i++)
+			bitset[i] = ip[i];
+	}
+
+	void Subnet::GetBitsetMask(OUT std::bitset<8>(&bitset)[4]){
+		for(int i = 0; i <= 3; i++)
+			bitset[i] = mask[i];
+	}
+
+	void Subnet::GetBitsetSubnet(OUT std::bitset<8>(&bitset)[4]){
+		
+		for(int i = 0; i <= 3; i++)
+			bitset[i] = ip[i] & mask[i];
 	}
 
 	std::ostream& operator<<(std::ostream& stream, const Subnet& subnet) {

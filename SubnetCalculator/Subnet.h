@@ -19,6 +19,9 @@ namespace subcalc {
 		std::string GetMask() const;
 		size_t GetMaskCount() const;
 		std::string GetSubnet() const;
+		void GetBitsetIP(OUT std::bitset<8>(&bitset)[4]);
+		void GetBitsetMask(OUT std::bitset<8>(&bitset)[4]);
+		void GetBitsetSubnet(OUT std::bitset<8>(&bitset)[4]);
 
 	private:
 		std::bitset<8> ip[4];
