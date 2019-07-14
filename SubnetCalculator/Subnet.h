@@ -28,6 +28,7 @@ namespace subcalc {
 		std::bitset<8> mask[4];
 
 		void ConvertStringToBitset(std::string address, OUT std::bitset<8>(&bitset)[4]);
+		std::string ConvertBitsetToString(const std::bitset<8>(&bitset)[4]) const;
 		bool ValidateMask(const std::bitset<8>(&mask)[4]) const;
 	};
 

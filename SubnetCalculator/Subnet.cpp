@@ -61,6 +61,13 @@ namespace subcalc {
 		}
 	}
 
+	std::string Subnet::ConvertBitsetToString(const std::bitset<8>(&bitset)[4]) const{
+		return std::to_string(bitset[0].to_ulong()) + "." 
+		+ std::to_string(bitset[1].to_ulong()) + "." 
+		+ std::to_string(bitset[2].to_ulong()) + "." 
+		+ std::to_string(bitset[3].to_ulong());
+	}
+
 	bool Subnet::ValidateMask(const std::bitset<8>(&mask)[4]) const{
 		for (int i = 0; i < 3; i++)
 			if (!mask[i].all() && mask[i + 1].any())
@@ -75,17 +82,11 @@ namespace subcalc {
 	}
 
 	std::string Subnet::GetIP() const {
-		return std::to_string(ip[0].to_ulong()) + "." 
-		+ std::to_string(ip[1].to_ulong()) + "." 
-		+ std::to_string(ip[2].to_ulong()) + "." 
-		+ std::to_string(ip[3].to_ulong());
+		return ConvertBitsetToString(ip);
 	}
 
 	std::string Subnet::GetMask() const {
-		return std::to_string(mask[0].to_ulong()) + "." 
-		+ std::to_string(mask[1].to_ulong()) + "." 
-		+ std::to_string(mask[2].to_ulong()) + "." 
-		+ std::to_string(mask[3].to_ulong());
+		return ConvertBitsetToString(mask);
 	}
 
 	size_t Subnet::GetMaskCount() const {
@@ -102,11 +103,7 @@ namespace subcalc {
 		for (int i = 0; i <= 3; i++)
 			subnet[i] = ip[i] & mask[i];
 
-		return std::to_string(subnet[0].to_ulong()) + "." 
-		+ std::to_string(subnet[1].to_ulong()) + "." 
-		+ std::to_string(subnet[2].to_ulong()) + "." 
-		+ std::to_string(subnet[3].to_ulong()) + "/" 
-		+ std::to_string((int)GetMaskCount());
+		return ConvertBitsetToString(subnet) + "/" + std::to_string((int)GetMaskCount());
 	}
 
 	void Subnet::GetBitsetIP(OUT std::bitset<8>(&bitset)[4]){
@@ -129,17 +126,6 @@ namespace subcalc {
 		stream << "IP: " << subnet.GetIP() << std::endl << "Subnet Mask: " << subnet.GetMask() << std::endl << "Subnet: " << subnet.GetSubnet();
 		return stream;
 	}
-
-
-	/*void Subnet::updateSubnet() {
-
-		std::bitset<8> tmp[4];
-		mask.GetBitset(tmp);
-
-		for (int i = 0; i < 3; i++)
-			address[i] &= tmp[i];
-	}*/
-
 
 	Subnet::~Subnet()
 	{
