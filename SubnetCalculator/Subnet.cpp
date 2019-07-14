@@ -6,32 +6,13 @@
 namespace subcalc {
 
 	Subnet::Subnet(std::string ip, std::string mask){
-		ConvertStringToBitset(ip, OUT this->ip);
-		ConvertStringToBitset(mask, OUT this->mask);
+		SetAddresses(ip, mask);
 		if (!ValidateMask(this->mask))
 			throw std::invalid_argument("Malformed Subnet Mask");
 	}
 
-	Subnet::Subnet(std::string ip, unsigned int mask){
-		ConvertStringToBitset(ip, OUT this->ip);
-
-		if(mask < 1 || mask > 31)
-			throw std::invalid_argument("Malformed Subnet Mask");
-		
-		for (int i = 0; i <= 3; i++){
-			if(mask >= 8){
-				this->mask[i].set();
-				mask -= 8;
-			}
-			else if(mask > 0){
-				for (int j = 7; j >= 8-mask; j--){
-					this->mask[i].set(j, true);
-					std::cout << j << std::endl;
-				}
-				break;
-			}
-
-		}
+	Subnet::Subnet(std::string ip, size_t mask){
+		SetAddresses(ip, mask);
 	}
 
 	void Subnet::ConvertStringToBitset(std::string address, OUT std::bitset<8>(&bitset)[4]){
@@ -68,6 +49,25 @@ namespace subcalc {
 		+ std::to_string(bitset[3].to_ulong());
 	}
 
+	void Subnet::ConvertMaskCountToBitset(size_t count, std::bitset<8>(&bitset)[4]){
+		if(count < 8 || count > 31)
+			throw std::invalid_argument("Malformed Subnet Mask");
+		
+		for (int i = 0; i <= 3; i++){
+			if(count >= 8){
+				bitset[i].set();
+				count -= 8;
+			}
+			else if(count > 0){
+				for (int j = 7; j >= 8-count; j--){
+					bitset[i].set(j, true);
+				}
+				break;
+			}
+
+		}
+	}
+
 	bool Subnet::ValidateMask(const std::bitset<8>(&mask)[4]) const{
 		for (int i = 0; i < 3; i++)
 			if (!mask[i].all() && mask[i + 1].any())
@@ -79,6 +79,28 @@ namespace subcalc {
 					return false;
 
 		return true;
+	}
+
+	void Subnet::SetIP(std::string ip){
+		ConvertStringToBitset(ip, this->ip);
+	}
+
+	void Subnet::SetMask(std::string mask){
+		ConvertStringToBitset(mask, this->mask);
+	}
+
+	void Subnet::SetMask(size_t mask){
+		ConvertMaskCountToBitset(mask, this->mask);
+	}
+
+	void Subnet::SetAddresses(std::string ip, std::string mask){
+		SetIP(ip);
+		SetMask(mask);
+	}
+
+	void Subnet::SetAddresses(std::string ip, size_t mask){
+		SetIP(ip);
+		SetMask(mask);
 	}
 
 	std::string Subnet::GetIP() const {
