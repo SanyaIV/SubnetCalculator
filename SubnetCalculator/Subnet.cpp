@@ -1,7 +1,6 @@
 #include "Subnet.h"
 #include <algorithm>
 #include <exception>
-#include <iostream>
 
 namespace subcalc {
 
@@ -11,11 +10,12 @@ namespace subcalc {
 			throw std::invalid_argument("Malformed Subnet Mask");
 	}
 
-	Subnet::Subnet(std::string ip, size_t mask){
-		SetAddresses(ip, mask);
+	Subnet::Subnet(std::string ip, std::uint8_t maskCount){
+		SetAddresses(ip, maskCount);
 	}
 
-	void Subnet::ConvertStringToBitset(std::string address, OUT std::bitset<8>(&bitset)[4]){
+	std::bitset<32> Subnet::ConvertStringToBitset(std::string address){
+		std::bitset<32> address2 = 0;
 		size_t dotPos[3] = { 0,0,0 };
 		
 		for (int i = 0; i < 3; i++)
@@ -26,71 +26,65 @@ namespace subcalc {
 
 		for (int i = 0; i < 4; i++) {
 			try {
-				int tmp = -1;
-				std::string tmps = address.substr(((i > 0) ? dotPos[i - 1] + 1 : 0), (i < 3 ? dotPos[i] - (i > 0 ? dotPos[i - 1] : -1) - 1: address.size() - 1));
-				if (std::all_of(tmps.begin(), tmps.end(), ::isdigit))
-					tmp = std::stoi(tmps);
+				int octet = -1;
+				std::string octet_string = address.substr(((i > 0) ? dotPos[i - 1] + 1 : 0), (i < 3 ? dotPos[i] - (i > 0 ? dotPos[i - 1] : -1) - 1: address.size() - 1));
+				if (std::all_of(octet_string.begin(), octet_string.end(), ::isdigit))
+					octet = std::stoi(octet_string);
 
-				if (tmp >= 0 && tmp <= 255)
-					bitset[i] = tmp;
-				else
+				if (octet >= 0 && octet <= 255)
+					address2 |= std::bitset<32>(octet<<OCTET_MASK_BITSHIFTS[i]) & OCTET_MASKS[i];
+				else 
 					throw std::invalid_argument("Malformed address");
 			}
 			catch (std::exception&) {
 				throw std::invalid_argument("Malformed address");
 			}
 		}
+
+		return address2;
 	}
 
-	std::string Subnet::ConvertBitsetToString(const std::bitset<8>(&bitset)[4]) const{
-		return std::to_string(bitset[0].to_ulong()) + "." 
-		+ std::to_string(bitset[1].to_ulong()) + "." 
-		+ std::to_string(bitset[2].to_ulong()) + "." 
-		+ std::to_string(bitset[3].to_ulong());
+	std::string Subnet::ConvertBitsetToString(std::bitset<32> bitset){
+		std::string rvalue;
+		for(int i = 0; i <= 3; i++){
+			rvalue += std::to_string(((bitset & OCTET_MASKS[i]) >> OCTET_MASK_BITSHIFTS[i]).to_ulong());
+			if(i != 3)
+				rvalue += ".";
+		}
+		
+		return rvalue;
 	}
 
-	void Subnet::ConvertMaskCountToBitset(size_t count, std::bitset<8>(&bitset)[4]){
+	std::bitset<32> Subnet::ConvertMaskCountToBitset(std::uint8_t count){
+		std::bitset<32> bitset;
+
 		if(count < 8 || count > 31)
 			throw std::invalid_argument("Malformed Subnet Mask");
 		
-		for (int i = 0; i <= 3; i++){
-			if(count >= 8){
-				bitset[i].set();
-				count -= 8;
-			}
-			else if(count > 0){
-				for (int j = 7; j >= 8-count; j--){
-					bitset[i].set(j, true);
-				}
-				break;
-			}
+		for (int i = 31; i >= 32-count; i--)
+			bitset.set(i, true);
 
-		}
+		return bitset;
 	}
 
-	bool Subnet::ValidateMask(const std::bitset<8>(&mask)[4]) const{
-		for (int i = 0; i < 3; i++)
-			if (!mask[i].all() && mask[i + 1].any())
+	bool Subnet::ValidateMask(std::bitset<32> const & mask){
+		for (int i = 31; i > 0; i--)
+			if (!mask[i] && mask[i-1])
 				return false;
-		
-		for (int i = 0; i < 3; i++) 
-			for (int j = 7; j > 0; j--) 
-				if (!mask[i][j] && mask[i][j-1])
-					return false;
 
 		return true;
 	}
 
 	void Subnet::SetIP(std::string ip){
-		ConvertStringToBitset(ip, this->ip);
+		this->ip = ConvertStringToBitset(ip);
 	}
 
 	void Subnet::SetMask(std::string mask){
-		ConvertStringToBitset(mask, this->mask);
+		this->mask = ConvertStringToBitset(mask);
 	}
 
-	void Subnet::SetMask(size_t mask){
-		ConvertMaskCountToBitset(mask, this->mask);
+	void Subnet::SetMask(std::uint_fast8_t mask){
+		this->mask = ConvertMaskCountToBitset(mask);
 	}
 
 	void Subnet::SetAddresses(std::string ip, std::string mask){
@@ -98,7 +92,7 @@ namespace subcalc {
 		SetMask(mask);
 	}
 
-	void Subnet::SetAddresses(std::string ip, size_t mask){
+	void Subnet::SetAddresses(std::string ip, std::uint_fast8_t mask){
 		SetIP(ip);
 		SetMask(mask);
 	}
@@ -111,37 +105,25 @@ namespace subcalc {
 		return ConvertBitsetToString(mask);
 	}
 
-	size_t Subnet::GetMaskCount() const {
-		size_t tmp = 0;
-		for (int i = 0; i <= 3; i++)
-			tmp += mask[i].count();
-
-		return tmp;
+	std::uint_fast8_t Subnet::GetMaskCount() const {
+		return mask.count();
 	}
 
 	std::string Subnet::GetSubnet() const {
-		std::bitset<8> subnet[4];
-		
-		for (int i = 0; i <= 3; i++)
-			subnet[i] = ip[i] & mask[i];
-
-		return ConvertBitsetToString(subnet) + "/" + std::to_string((int)GetMaskCount());
+		std::bitset<32> subnet = ip & mask;
+		return ConvertBitsetToString(subnet) + "/" + std::to_string(GetMaskCount());
 	}
 
-	void Subnet::GetBitsetIP(OUT std::bitset<8>(&bitset)[4]){
-		for(int i = 0; i <= 3; i++)
-			bitset[i] = ip[i];
+	std::bitset<32> Subnet::GetBitsetIP() const {
+		return ip;
 	}
 
-	void Subnet::GetBitsetMask(OUT std::bitset<8>(&bitset)[4]){
-		for(int i = 0; i <= 3; i++)
-			bitset[i] = mask[i];
+	std::bitset<32> Subnet::GetBitsetMask() const {
+		return mask;
 	}
 
-	void Subnet::GetBitsetSubnet(OUT std::bitset<8>(&bitset)[4]){
-		
-		for(int i = 0; i <= 3; i++)
-			bitset[i] = ip[i] & mask[i];
+	std::bitset<32> Subnet::GetBitsetSubnet() const {
+		return ip & mask;
 	}
 
 	std::ostream& operator<<(std::ostream& stream, const Subnet& subnet) {
