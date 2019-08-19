@@ -10,17 +10,45 @@ namespace subcalc {
 	class Subnet
 	{
 	public:
-		inline static std::bitset<32> const OCTET_MASKS[4] = {
-			static_cast<std::uint32_t>(255<<24),
-			static_cast<std::uint32_t>(255<<16),
-			static_cast<std::uint32_t>(255<<8),
-			static_cast<std::uint32_t>(255)
+		inline static std::uint_fast8_t constexpr OCTET_MASK_BITSHIFTS[4] = {24, 16, 8, 0};
+		inline static std::bitset<32> constexpr OCTET_MASKS[4] = {
+			static_cast<std::uint32_t>(255<<OCTET_MASK_BITSHIFTS[0]),
+			static_cast<std::uint32_t>(255<<OCTET_MASK_BITSHIFTS[1]),
+			static_cast<std::uint32_t>(255<<OCTET_MASK_BITSHIFTS[2]),
+			static_cast<std::uint32_t>(255<<OCTET_MASK_BITSHIFTS[3])
 		};
-		inline static std::uint_fast8_t const OCTET_MASK_BITSHIFTS[4] = {24, 16, 8, 0};
-
+		
+		/**
+		 * Constructor taking an ip in string form and subnet mask in string form.
+		 */
 		Subnet(std::string ip, std::string mask);
+		/**
+		 * Constructor taking an ip in string form and subnet mask in count form.
+		 */
 		Subnet(std::string ip, std::uint_fast8_t maskCount);
-		~Subnet();
+		
+		/**
+		 * Default copy constructor.
+		 */
+		Subnet(const Subnet&) = default;
+		/**
+		 * Default copy assignment.
+		 */
+		Subnet& operator=(const Subnet&) = default;
+
+		/**
+		 * Default move constructor.
+		 */
+		Subnet(Subnet&&) = default;
+		/**
+		 * Default move assignment.
+		 */
+		Subnet& operator=(Subnet&&) = default;
+
+		/**
+		 * Default destructor.
+		 */
+		~Subnet() = default;
 		
 		void SetIP(std::string ip);
 		void SetMask(std::string mask);

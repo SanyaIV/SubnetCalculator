@@ -130,9 +130,4 @@ namespace subcalc {
 		stream << "IP: " << subnet.GetIP() << std::endl << "Subnet Mask: " << subnet.GetMask() << std::endl << "Subnet: " << subnet.GetSubnet();
 		return stream;
 	}
-
-	Subnet::~Subnet()
-	{
-	}
-
 }
