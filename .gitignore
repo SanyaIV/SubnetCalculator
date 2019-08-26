@@ -262,3 +262,4 @@ __pycache__/
 SubnetCalculator/.vscode/c_cpp_properties.json
 SubnetCalculator/.vscode/settings.json
 SubnetCalculator/SubnetCalc.exe
+.vscode/
