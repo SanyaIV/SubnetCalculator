@@ -2,7 +2,6 @@
 
 #include <bitset>
 #include <cstddef>
-#include <ostream>
 #include <string>
 
 class Subnet
@@ -24,21 +23,22 @@ public:
 	Subnet& operator=(Subnet&&) 		= delete;
 	~Subnet() 							= delete;
 
-	static auto StringToIP(std::string address) -> std::bitset<32>;
-	static auto StringToMask(std::string mask) -> std::bitset<32>;
-	static auto BitsetToString(const std::bitset<32>& bitset) -> std::string;
+	static std::bitset<32> StringToIP(const std::string& address);
+	static std::bitset<32> StringToMask(const std::string& mask);
+	static std::string BitsetToString(const std::bitset<32>& bitset);
 
-	static auto MaskCountToMask(std::size_t count) -> std::bitset<32>;
-	static auto MaskToMaskCount(const std::bitset<32>& mask) -> std::size_t;
-	static auto ValidateMask(const std::bitset<32>& mask) -> bool;
+	static std::bitset<32> MaskCountToMask(std::size_t count);
+	static std::size_t MaskToMaskCount(const std::bitset<32>& mask);
+	static std::bitset<32> GetMaskFromHostCount(std::size_t count);
+	static bool ValidateMask(const std::bitset<32>& mask);
 
-	static auto GetSubnet(const std::bitset<32>& ip, const std::bitset<32>& mask) -> std::bitset<32>;
-	static auto GetSubnet(const std::bitset<32>& ip, std::size_t maskCount) -> std::bitset<32>;
-	static auto GetSubnet(std::string ip, std::string mask) -> std::bitset<32>;
-	static auto GetSubnet(std::string ip, std::size_t maskCount) -> std::bitset<32>;
+	static std::bitset<32> GetSubnet(const std::bitset<32>& ip, const std::bitset<32>& mask);
+	static std::bitset<32> GetSubnet(const std::bitset<32>& ip, std::size_t maskCount);
+	static std::bitset<32> GetSubnet(const std::string& ip, const std::string& mask);
+	static std::bitset<32> GetSubnet(const std::string& ip, std::size_t maskCount);
 
-	static auto GetMinHost(const std::bitset<32>& ip, const std::bitset<32>& mask) -> std::bitset<32>;
-	static auto GetMaxHost(const std::bitset<32>& ip, const std::bitset<32>& mask) -> std::bitset<32>;
+	static std::bitset<32> GetMinHost(const std::bitset<32>& ip, const std::bitset<32>& mask);
+	static std::bitset<32> GetMaxHost(const std::bitset<32>& ip, const std::bitset<32>& mask);
 	static void GetHostRange(const std::bitset<32>& ip, const std::bitset<32>& mask, std::bitset<32>& minimumHost, std::bitset<32>& maximumHost);
-	static auto GetBroadcast(const std::bitset<32>& ip, const std::bitset<32>& mask) -> std::bitset<32>;
+	static std::bitset<32> GetBroadcast(const std::bitset<32>& ip, const std::bitset<32>& mask);
 };

@@ -1,11 +1,13 @@
 #include "Subnet.h"
 #include <algorithm>
+#include <cmath>
 #include <exception>
+#include <ostream>
 
-auto Subnet::StringToIP(std::string address) -> std::bitset<32>
+std::bitset<32> Subnet::StringToIP(const std::string& address)
 {
 	std::bitset<32> address2 = 0;
-	size_t dotPos[3] = { 0,0,0 };
+	std::size_t dotPos[3] = { 0,0,0 };
 	
 	for (int i = 0; i < 3; i++)
 		dotPos[i] = address.find('.', (i > 0 ? dotPos[i - 1] + 1 : 0));
@@ -32,7 +34,7 @@ auto Subnet::StringToIP(std::string address) -> std::bitset<32>
 
 	return address2;
 }
-auto Subnet::StringToMask(std::string mask) -> std::bitset<32>
+std::bitset<32> Subnet::StringToMask(const std::string& mask)
 {
 	auto bitsetMask = StringToIP(mask);
 	if(ValidateMask(bitsetMask))
@@ -40,9 +42,9 @@ auto Subnet::StringToMask(std::string mask) -> std::bitset<32>
 	else
 		throw std::invalid_argument("Malformed subnet mask");
 }
-auto Subnet::BitsetToString(const std::bitset<32>& bitset) -> std::string
+std::string Subnet::BitsetToString(const std::bitset<32>& bitset)
 {
-	std::string rvalue;
+	std::string rvalue("");
 	for(int i = 0; i <= 3; i++){
 		rvalue += std::to_string(((bitset & OCTET_MASKS[i]) >> OCTET_MASK_BITSHIFTS[i]).to_ulong());
 		if(i != 3)
@@ -52,20 +54,38 @@ auto Subnet::BitsetToString(const std::bitset<32>& bitset) -> std::string
 	return rvalue;
 }
 
-auto Subnet::MaskCountToMask(std::size_t count) -> std::bitset<32>
+std::bitset<32> Subnet::MaskCountToMask(std::size_t count)
 {
-	std::bitset<32> bitset;
+	std::bitset<32> bitset(0);
 
 	if(count < 8 || count > 31)
-		throw std::invalid_argument("Malformed Subnet Mask");
+		throw std::invalid_argument("Malformed subnet mask");
 	
 	for (int i = 31; i >= 32-count; i--)
 		bitset.set(i, true);
 
 	return bitset;
 }
-auto MaskToMaskCount(const std::bitset<32>& mask) { return mask.count(); }
-auto Subnet::ValidateMask(const std::bitset<32>& mask) -> bool 
+std::size_t Subnet::MaskToMaskCount(const std::bitset<32>& mask) { return mask.count(); }
+std::bitset<32> Subnet::GetMaskFromHostCount(std::size_t count)
+{
+	static constexpr int ADDITIONAL_REQUIRED_HOSTS = 2;
+	std::size_t exponent = static_cast<std::size_t>(std::ceil(std::log2(count + ADDITIONAL_REQUIRED_HOSTS)));
+
+	if(exponent >= 32)
+		throw std::invalid_argument("Too many hosts");
+	else if (exponent <= 1)
+		throw std::invalid_argument("Too few hosts");
+
+	exponent = ~((1 << exponent) - 1); //inverted bit shift of 2^exponent - 1
+	std::bitset<32> mask(exponent);
+
+	if(ValidateMask(mask))
+		return mask;
+	else
+		throw std::invalid_argument("Mask failed validation");
+}
+bool Subnet::ValidateMask(const std::bitset<32>& mask)
 {
 	for (int i = 31; i > 0; i--)
 		if (!mask[i] && mask[i-1])
@@ -74,17 +94,16 @@ auto Subnet::ValidateMask(const std::bitset<32>& mask) -> bool
 	return true;
 }
 
-auto Subnet::GetSubnet(const std::bitset<32>& ip, const std::bitset<32>& mask)	-> std::bitset<32> { return ip & mask; }
-auto Subnet::GetSubnet(const std::bitset<32>& ip, std::size_t maskCount) 		-> std::bitset<32> { return ip & MaskCountToMask(maskCount); }
-auto Subnet::GetSubnet(std::string ip, std::string mask) 						-> std::bitset<32> { return StringToIP(ip) & StringToMask(mask); }
-auto Subnet::GetSubnet(std::string ip, std::size_t maskCount) 					-> std::bitset<32> { return StringToIP(ip) & MaskCountToMask(maskCount); }
+std::bitset<32> Subnet::GetSubnet(const std::bitset<32>& ip, const std::bitset<32>& mask)	{ return ip & mask; }
+std::bitset<32> Subnet::GetSubnet(const std::bitset<32>& ip, std::size_t maskCount) 	 	{ return ip & MaskCountToMask(maskCount); }
+std::bitset<32> Subnet::GetSubnet(const std::string& ip, const std::string& mask) 			{ return StringToIP(ip) & StringToMask(mask); }
+std::bitset<32> Subnet::GetSubnet(const std::string& ip, std::size_t maskCount) 			{ return StringToIP(ip) & MaskCountToMask(maskCount); }
 
-
-auto Subnet::GetMinHost(const std::bitset<32>& ip, const std::bitset<32>& mask) -> std::bitset<32>{ return (ip & mask).set(0, true); }
-auto Subnet::GetMaxHost(const std::bitset<32>& ip, const std::bitset<32>& mask) -> std::bitset<32>{ return ((ip & mask) | std::bitset<32>(mask).flip()).set(0, false); }
+std::bitset<32> Subnet::GetMinHost(const std::bitset<32>& ip, const std::bitset<32>& mask) 	{ return (ip & mask).set(0, true); }
+std::bitset<32> Subnet::GetMaxHost(const std::bitset<32>& ip, const std::bitset<32>& mask) 	{ return ((ip & mask) | std::bitset<32>(mask).flip()).set(0, false); }
 void Subnet::GetHostRange(const std::bitset<32>& ip, const std::bitset<32>& mask, std::bitset<32>& minimumHost, std::bitset<32>& maximumHost)
 {
 	minimumHost = GetMinHost(ip, mask);
 	maximumHost = GetMaxHost(ip, mask);
 }
-auto Subnet::GetBroadcast(const std::bitset<32>& ip, const std::bitset<32>& mask) 		-> std::bitset<32> { return (ip & mask) | std::bitset<32>(mask).flip(); }
+std::bitset<32> Subnet::GetBroadcast(const std::bitset<32>& ip, const std::bitset<32>& mask) { return (ip & mask) | std::bitset<32>(mask).flip(); }
